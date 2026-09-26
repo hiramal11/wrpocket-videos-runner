@@ -1,5 +1,5 @@
 # 毎時の動画の取り込み (2026-09-26 に Chromebook の cron から移し、 同日 3 時間ごと → 毎時)。
-# 起動は Cloudflare の Worker (wrpocket-rank-watcher)。 RSS を API で補うのは 3 時間ごとの回だけ (rss_only=false)。
+# 起動は Cloudflare の Worker (wrpocket-rank-watcher)。 RSS を API で補う間隔は Worker の VIDEOS_API_EVERY_H (既定 1 = 毎回)。
 # 取り込みのコードは非公開リポジトリ hiramal11/wildrift の scripts/maintenance/videos_live_ci.sh。
 # 本番の一覧は main のコード、 dev の一覧は dev のコードで作る (端末の cron_videos_live.sh と同じ)。
 name: videos-live
@@ -18,7 +18,7 @@ on:
         type: boolean
         default: false
       rss_only:
-        description: 本番も RSS だけで取る (毎時の回のうち API で補わない 2 回)
+        description: 本番も RSS だけで取る (Worker の VIDEOS_API_EVERY_H で補わない回)
         type: boolean
         default: false
 concurrency:
