@@ -28,15 +28,6 @@ jobs:
           ref: ${{ matrix.target == 'prod' && 'main' || 'dev' }}
           token: ${{ secrets.PRIVATE_REPO_TOKEN }}
           fetch-depth: 1
-          sparse-checkout: |
-            scripts
-            data/manual
-            data/youtube
-            api
-            site_data/champions_summary.json
-            site_data/meta.json
-            site_data/patch_notes.json
-          sparse-checkout-cone-mode: false
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
