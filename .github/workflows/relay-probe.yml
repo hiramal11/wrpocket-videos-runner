@@ -27,7 +27,7 @@ jobs:
               fail = []
               for i in todo:
                   try:
-                      urllib.request.urlopen(f"https://wrpocket-rss-relay.pauldot.workers.dev/feed?channel_id={i}", timeout=30).read()
+                      urllib.request.urlopen(urllib.request.Request(f"https://wrpocket-rss-relay.pauldot.workers.dev/feed?channel_id={i}", headers={"User-Agent": "wrpocket-videos-runner/1.0 (+https://wrpocket.app)"}), timeout=30).read()
                   except urllib.error.HTTPError as e:
                       codes[e.code] = codes.get(e.code, 0) + 1; fail.append(i)
                   except Exception as e:
