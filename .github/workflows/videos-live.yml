@@ -1,0 +1,54 @@
+# 3 時間ごとの動画の取り込み (2026-09-26 に Chromebook の cron から移した)。
+# 取り込みのコードは非公開リポジトリ hiramal11/wildrift の scripts/maintenance/videos_live_ci.sh。
+# 本番の一覧は main のコード、 dev の一覧は dev のコードで作る (端末の cron_videos_live.sh と同じ)。
+name: videos-live
+on:
+  repository_dispatch:
+    types: [videos-live]
+  workflow_dispatch:
+concurrency:
+  group: videos-live
+  cancel-in-progress: false
+permissions:
+  contents: read
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        target: [prod, dev]
+    steps:
+      - name: 非公開リポジトリのコードを取る
+        uses: actions/checkout@v4
+        with:
+          repository: hiramal11/wildrift
+          ref: ${{ matrix.target == 'prod' && 'main' || 'dev' }}
+          token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+          fetch-depth: 1
+          sparse-checkout: |
+            scripts
+            data/manual
+            data/youtube
+            api
+            site_data/champions_summary.json
+            site_data/meta.json
+            site_data/patch_notes.json
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 取り込んで KV に書く (${{ matrix.target }})
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          WRANGLER_SEND_METRICS: 'false'
+        run: |
+          pip install -q requests
+          bash scripts/maintenance/videos_live_ci.sh ${{ matrix.target }}
