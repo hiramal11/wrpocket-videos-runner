@@ -1,0 +1,10 @@
+# GitHub Actions の外部の部品を SHA で固定した (2026-10-12、 週次のセキュリティのコード監査の指摘 G1)。
+# 固定したままだと更新に気づけないので、 新しい版を Dependabot が週 1 回 pull request で知らせる。
+# 取り込むかは人が決める (マージしなければ何も変わらない)。
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
